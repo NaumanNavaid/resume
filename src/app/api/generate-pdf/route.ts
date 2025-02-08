@@ -8,7 +8,7 @@ export async function GET() {
     const page = await browser.newPage();
 
     // Specify the URL of your resume page
-    const resumeURL = "http://localhost:3000"// Adjust if needed
+    const resumeURL = "https://resume-omega-ruby.vercel.app/"// Adjust if needed
     await page.goto(resumeURL, { waitUntil: "networkidle0" });
 
     // Generate PDF

@@ -1,36 +1,31 @@
 import { NextResponse } from "next/server";
-import puppeteer from "puppeteer";
+import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer-core";
 
 export async function GET() {
   try {
-    // Launch Puppeteer with necessary arguments
+    // Launch Chromium using chrome-aws-lambda
     const browser = await puppeteer.launch({
       headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage", // Helps with shared memory issues
-      ],
+      args: chromium.args,
+      executablePath: await chromium.executablePath,
+      defaultViewport: chromium.defaultViewport,
     });
     const page = await browser.newPage();
 
-    // Specify your deployed resume URL. Update the path if needed.
+    // Specify the URL of your resume page (adjust if your page is on a subpath)
     const resumeURL = "https://resume-omega-ruby.vercel.app";
-    console.log(`Navigating to: ${resumeURL}`);
-    
-    // Navigate to the resume page with a timeout (30 seconds)
     await page.goto(resumeURL, { waitUntil: "networkidle0", timeout: 30000 });
-    
-    // Generate PDF with no margins
+
+    // Generate the PDF with no margins
     const pdfBuffer = await page.pdf({
-      format: "A4",
+      format: "a4",
       printBackground: true,
       margin: { top: "0px", right: "0px", bottom: "0px", left: "0px" },
     });
 
     await browser.close();
 
-    // Return the PDF buffer as a downloadable file
     return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
